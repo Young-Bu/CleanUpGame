@@ -17,6 +17,8 @@ public class GameManager : MonoBehaviour
     private float currentTime = 0f;
     private bool timerRunning = true;
 
+    private HashSet<string> cleanedItems = new HashSet<string>();
+
     void Awake()
     {
         // 싱글턴
@@ -61,12 +63,16 @@ public class GameManager : MonoBehaviour
         currentTime = 0f;
         timerRunning = true;
 
+        cleanedItems.Clear();
+
         // 메인씬에서 새로 시작할 경우, UI 찾아서 다시 연결
         progressText = GameObject.Find("ProgressText")?.GetComponent<Text>();
         timerText = GameObject.Find("TimerText")?.GetComponent<Text>();
 
         UpdateProgressUI();
         UpdateTimerUI();
+
+        CheckManager.Instance?.ResetChecklistUI();
     }
 
     private void UpdateTimerUI()
@@ -76,20 +82,6 @@ public class GameManager : MonoBehaviour
             int minutes = Mathf.FloorToInt(currentTime / 60f);
             int seconds = Mathf.FloorToInt(currentTime % 60f);
             timerText.text = $"Time: {minutes:00}:{seconds:00}";
-        }
-    }
-
-    public void AddCleanedItem()
-    {
-        cleanedItemCount++;
-        UpdateProgressUI();
-
-        Debug.Log($"정리된 아이템: {cleanedItemCount}/{totalItemsToClean}");
-
-        if (cleanedItemCount >= totalItemsToClean)
-        {
-            timerRunning = false;
-            SaveTimeAndGoToEnding();
         }
     }
 
@@ -118,4 +110,22 @@ public class GameManager : MonoBehaviour
     }
 
     public float GetCurrentTime() => currentTime;
+
+    public void MarkItemAsCleaned(string itemName)
+    {
+        if (!cleanedItems.Contains(itemName))
+        {
+            cleanedItems.Add(itemName);
+            CheckManager.Instance?.UpdateChecklist(itemName);
+        }
+
+        cleanedItemCount++;
+        UpdateProgressUI();
+
+        if (cleanedItemCount >= totalItemsToClean)
+        {
+            timerRunning = false;
+            SaveTimeAndGoToEnding();
+        }
+    }
 }

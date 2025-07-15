@@ -12,8 +12,9 @@ public class DraggableItem2D : MonoBehaviour
     public AudioClip successSound;          // 드롭 성공 사운드
     private AudioSource audioSource;
 
-    [Header("올바른 드롭존 태그")]
     public string correctDropZoneTag;
+
+    public string itemName;
 
     void Start()
     {
@@ -58,7 +59,7 @@ public class DraggableItem2D : MonoBehaviour
             // 정리 성공으로 카운트 증가
             if (!alreadyPlaced)
             {
-                GameManager.Instance.AddCleanedItem();
+                GameManager.Instance.MarkItemAsCleaned(itemName);
                 alreadyPlaced = true;
             }
         }
