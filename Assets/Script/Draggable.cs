@@ -9,6 +9,9 @@ public class DraggableItem2D : MonoBehaviour
     private bool isDragging = false;
     private Camera mainCamera;
 
+    public AudioClip successSound;          // 드롭 성공 사운드
+    private AudioSource audioSource;
+
     [Header("올바른 드롭존 태그")]
     public string correctDropZoneTag;
 
@@ -16,6 +19,7 @@ public class DraggableItem2D : MonoBehaviour
     {
         mainCamera = Camera.main;
         originalPosition = transform.position;
+        audioSource = GetComponent<AudioSource>();
     }
 
     void OnMouseDown()
@@ -45,7 +49,18 @@ public class DraggableItem2D : MonoBehaviour
         {
             // 정답 위치에 놓음
             transform.position = hit.transform.position;
-            // 추가로 사운드나 이펙트 가능
+
+            if (successSound != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(successSound);
+            }
+
+            // 정리 성공으로 카운트 증가
+            if (!alreadyPlaced)
+            {
+                GameManager.Instance.AddCleanedItem();
+                alreadyPlaced = true;
+            }
         }
         else
         {
@@ -53,4 +68,5 @@ public class DraggableItem2D : MonoBehaviour
             transform.position = originalPosition;
         }
     }
+    private bool alreadyPlaced = false;
 }
